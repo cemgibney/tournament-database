@@ -1,4 +1,4 @@
-# tournament_database
+# tournament-database
 
 **Introduction**
 
