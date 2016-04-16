@@ -36,9 +36,9 @@ in past match-ups
 
 **Authors**
 
-* Udacity team -- [see GitHub page](https://github.com/adarsh0806/ud036_StarterCode/blob/master/fresh_tomatoes.py)
+* Udacity team -- [see GitHub page](https://github.com/udacity)
 * Additions by [Carolyn Gibney](https://github.com/cemgibney)
 
 **Bugs & Feature Requests**
 
-* Please submit to the Udacity team via their [GitHub page](https://github.com/adarsh0806/ud036_StarterCode/blob/master/fresh_tomatoes.py)
+* Please submit to the Udacity team via their [GitHub page](https://github.com/udacity)
