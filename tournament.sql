@@ -13,7 +13,7 @@ CREATE DATABASE tournament;
 CREATE TABLE players 
 	(
 		player_name TEXT, 
-		player_id serial PRIMARY KEY
+		player_id SERIAL PRIMARY KEY
 	);
 
 CREATE TABLE matches 
