@@ -2,9 +2,7 @@
 # 
 # tournament.py -- implementation of a Swiss-system tournament
 #
-
 import psycopg2
-
 
 def connect(database_name="tournament"):
     """Connect to the PostgreSQL database.  Returns a database connection."""
@@ -24,7 +22,6 @@ def deleteMatches():
     cursor.execute("delete from matches;")
     db.commit()
     db.close()
-
 
 def deletePlayers():
     """Remove all the player records from the database."""
@@ -83,7 +80,7 @@ def playerStandings():
     cursor.execute("insert into matches (player_id)"
                    "select player_id from players;")
                    #  First make sure that the correct player_ids are 
-                   #  inserted in table matches.
+                   #  inserted in table matches in order to count them.
     db.commit()
     cursor.execute("select player_id, player_name, wins, matches from "
                    "standings;")
@@ -104,6 +101,10 @@ def reportMatch(winner, loser):
     """
 
     db, cursor = connect()
+    cursor.execute("delete from only matches where winner is null;")
+                    #  Remove any rows only from table matches with nothing 
+                    #  in the winner column.
+    db.commit()
     cmd = """insert into matches (player_id, winner, matched_pairs) values 
     (%s, 1, (select * from matched_pairs)), (%s, 0, (select * from 
     matched_pairs));"""
