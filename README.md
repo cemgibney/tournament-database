@@ -31,8 +31,8 @@ in past match-ups
 * After making sure Python and PostgresQL are installed (see links above), upload the following to your web server:
   * tournament.sql
   * tournament.py
-* Run ```psql -f tournament.sql``` in command line to create a new database entitled 'tournament'
 * To instantiate necessary tables and views, run tournament.sql
+* Run ```psql -f tournament.sql``` in command line to create a new database entitled 'tournament'
 * To edit or add Python functionality, edit tournament.py
 * To test that all functions work properly, run tournament_test.py
 
