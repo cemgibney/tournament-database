@@ -18,9 +18,10 @@ CREATE TABLE players
 
 CREATE TABLE matches 
 	(
-		player_id INTEGER PRIMARY KEY REFERENCES players, 
+		match_id SERIAL PRIMARY KEY,
+		player_id INTEGER REFERENCES players, 
 		winner INTEGER, 
-		match_id INTEGER
+		matched_pairs INTEGER
 	);
 
 CREATE VIEW standings 
@@ -38,12 +39,12 @@ AS
 	GROUP BY players.player_id 
 	ORDER BY wins desc;
 
-CREATE VIEW match_ids 
+CREATE VIEW matched_pairs 
 AS 
 	SELECT CASE 
-			WHEN Max(match_id) IS NULL THEN 0 
-			ELSE Max(match_id) + 1 
-		END AS match_id 
+			WHEN Max(matched_pairs) IS NULL THEN 0 
+			ELSE Max(matched_pairs) + 1 
+		END AS matched_pairs 
 	FROM matches;
 
 CREATE VIEW s1
@@ -79,9 +80,9 @@ AS
 CREATE VIEW pairs
 AS 
 	(SELECT	odd.player_id		AS player_1_id, 
-		odd.player_name		AS player_1_name, 
-		even.player_id 		AS player_2_id, 
-		even.player_name 	AS player_2_name
+			odd.player_name		AS player_1_name, 
+			even.player_id 		AS player_2_id, 
+			even.player_name 	AS player_2_name
 	FROM	odd,
-		even
+			even
 	WHERE 	odd.i = even.i);
