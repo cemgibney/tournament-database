@@ -104,8 +104,9 @@ def reportMatch(winner, loser):
     """
 
     db, cursor = connect()
-    cmd = """insert into matches (player_id, winner, match_id) values 
-    (%s, 1, (select * from match_ids)), (%s, 0, (select * from match_ids));"""
+    cmd = """insert into matches (player_id, winner, matched_pairs) values 
+    (%s, 1, (select * from matched_pairs)), (%s, 0, (select * from 
+    matched_pairs));"""
     #  Wins inserted as boolean 1 or 0, match_id pulls same number from
     #  view match_ids to identify that these two players have played each
     #  other.
