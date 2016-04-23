@@ -6,15 +6,42 @@
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
 
-create table players (player_name text, player_id serial primary key);
+DROP DATABASE IF EXISTS tournament;
+CREATE DATABASE tournament;
+\c tournament;
 
-create table matches (player_id integer references players, winner integer, match_id integer);
+CREATE TABLE players 
+	(
+		player_name text, 
+		player_id serial primary key
+	);
 
-create view standings as select players.player_id, players.player_name, 
-case when sum(matches.winner) is null then 0 else sum(matches.winner) end
-as wins, count(matches.winner) as matches from players, matches where 
-players.player_id = matches.player_id group by players.player_id order by
-wins desc;
+CREATE TABLE matches 
+	(
+		player_id integer primary key references players, 
+		winner integer, 
+		match_id integer
+	);
 
-create view match_ids as select case when max(match_id) is null then 0 
-else max(match_id) + 1 end as match_id from matches;
+CREATE VIEW standings 
+AS 
+	SELECT 	players.player_id, 
+			players.player_name, 
+			CASE 
+				WHEN SUM(matches.winner) IS NULL THEN 0 
+				ELSE SUM(matches.winner) 
+				END					  AS wins, 
+				Count(matches.winner) AS matches 
+	FROM 	players, 
+			matches 
+	WHERE 	players.player_id = matches.player_id 
+	GROUP BY players.player_id 
+	ORDER BY wins desc;
+
+CREATE VIEW match_ids 
+AS 
+	SELECT CASE 
+			WHEN Max(match_id) IS NULL THEN 0 
+			ELSE Max(match_id) + 1 
+		END AS match_id 
+	FROM matches;
