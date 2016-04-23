@@ -6,41 +6,44 @@
 import psycopg2
 
 
-def connect():
+def connect(database_name="tournament"):
     """Connect to the PostgreSQL database.  Returns a database connection."""
-    return psycopg2.connect("dbname=tournament")
+    try:
+        db = psycopg2.connect("dbname={}".format(database_name))
+        cursor = db.cursor()
+        return db, cursor
+    except:
+        print("Could not connect to database 'tournament'")
+
 
 
 def deleteMatches():
     """Remove all the match records from the database."""
 
-    conn = connect()
-    cursor = conn.cursor()
+    db, cursor = connect()
     cursor.execute("delete from matches;")
-    conn.commit()
-    conn.close()
+    db.commit()
+    db.close()
 
 
 def deletePlayers():
     """Remove all the player records from the database."""
 
-    conn = connect()
-    cursor = conn.cursor()
+    db, cursor = connect()
     cursor.execute("delete from matches; delete from players;")
                    #  Remove all matches first, as they are dependent on
                    #  table players for primary key.
-    conn.commit()
-    conn.close()
+    db.commit()
+    db.close()
 
 
 def countPlayers():
     """Returns the number of players currently registered."""
 
-    conn = connect()
-    cursor = conn.cursor()
+    db, cursor = connect()
     cursor.execute("select count(*) from players;")
-    results = cursor.fetchall()[0][0]
-    conn.close()
+    results = cursor.fetchone()[0]
+    db.close()
     return results
 
 
@@ -55,12 +58,11 @@ def registerPlayer(name):
       name: the player's full name (need not be unique).
     """
 
-    conn = connect()
-    cursor = conn.cursor()
+    db, cursor = connect()
     cmd = ("insert into players values (%s)")
     cursor.execute(cmd, (name,))
-    conn.commit()
-    conn.close()
+    db.commit()
+    db.close()
 
 
 def playerStandings():
@@ -77,23 +79,18 @@ def playerStandings():
         matches: the number of matches the player has played
     """
 
-    conn = connect()
-    cursor = conn.cursor()
+    db, cursor = connect()
     cursor.execute("insert into matches (player_id)"
                    "select player_id from players;")
                    #  First make sure that the correct player_ids are 
                    #  inserted in table matches.
-    conn.commit()
-    cursor.execute("select players.player_id, players.player_name, "
-                    #  Pull player names
-                    "case when sum(matches.winner) is null then 0 else "
-                    "sum(matches.winner) end as wins, count(matches.winner) "
-                    #  Sum the winners column (set to 0 if null)
-                    "as matches from players, matches where players.player_id"
-                    " = matches.player_id group by players.player_id order by"
-                    " wins desc;")
+    db.commit()
+    cursor.execute("select player_id, player_name, wins, matches from "
+                   "standings;")
+                   #  Pull data from view standings, composite of 
+                   #  table players and table matches.
     results = cursor.fetchall()
-    conn.close()
+    db.close()
     return results
 
 
@@ -106,12 +103,15 @@ def reportMatch(winner, loser):
       loser:  the id number of the player who lost
     """
 
-    conn = connect()
-    cursor = conn.cursor()
-    cmd = "insert into matches (player_id, winner, match_id) values (%s, 1, (select * from match_ids)), (%s, 0, (select * from match_ids));"
+    db, cursor = connect()
+    cmd = """insert into matches (player_id, winner, match_id) values 
+    (%s, 1, (select * from match_ids)), (%s, 0, (select * from match_ids));"""
+    #  Wins inserted as boolean 1 or 0, match_id pulls same number from
+    #  view match_ids to identify that these two players have played each
+    #  other.
     cursor.execute(cmd, (winner,loser))
-    conn.commit()
-    conn.close()
+    db.commit()
+    db.close()
  
  
 def swissPairings():
@@ -129,14 +129,10 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
-    conn = connect()
-    cursor = conn.cursor()
-    cursor.execute("select distinct a.player_id, a.player_name, b.player_id, "
-                   "b.player_name from standings as a, standings as b where "
-                   "a.player_id != b.player_id and a.wins = b.wins limit 4;")
-                   #  Join standings to self, pull player 1 and player 2 based
-                   #  on their win records, make sure they are distinct, and
-                   #  limit to 4 pairs.
+    db, cursor = connect()
+    cursor.execute("select * from pairs;")
     results = cursor.fetchall()
-    conn.close()    
+    db.close()    
     return results
+
+
